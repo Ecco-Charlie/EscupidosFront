@@ -1,8 +1,4 @@
 <template>
-    
-    
-    
-    
     <div class="card" v-show="mensaje?.tipo=='TWITTER'" id="container">
         <div class="credenciales">
             <img src="" alt="icono">
@@ -19,10 +15,8 @@
     
     
     <div class="card-insta" v-show="mensaje?.tipo=='INSTAGRAM'">
-        <img class="foto-p" src="" alt="FotoPerfil"/>
         <h3>Te amo uwu</h3>
-        
-        <img src="escupidosfront/src/assets/logo.png" alt="FotoAmorcito">
+        <img :src="imageUrl" alt="">    
         <div class="iconos">
             <img src="" alt="Me encanta">
             <img src="" alt="Comentar">
@@ -42,18 +36,19 @@ tipo: string;
 mensaje: string;
 remitente: string;
 destino: string;
-imagen: Blob;
+imagen: Uint32Array;
 }
 
-
+let imageUrl:string;
 const mensaje = ref<Mensaje | null>(null);
-const imagenUrl = ref<string>('');
+
+//Funcion para pasar a formato base 64 
 
 const fetchMessage = async () => {
 try {
     const response = await fetch(`http://soft-exe.ddns.net:8080/escupidos/msg`);
     const data = await response.json();
-    console.log("Pablo pepino");
+    console.log(data);
     mensaje.value = {
     id: data.id,
     tipo: data.tipo,
@@ -62,27 +57,24 @@ try {
     destino: data.destino,
     imagen: data.imagen
     };
-    
-    console.log(data.tipo);
+    imageUrl = `data:image/jpeg;base64,${data.imagen}`
     insta = (data.tipo === "INSTAGRAM");
     console.log(insta);
 
-
-
-    imagenUrl.value = `data:image/jpeg;base64,${data.imagen}`;
 } catch (error) {
     console.error(error);
     console.log(ErrorCodes)
     throw new Error('Error al obtener el mensaje');
 }
+
 };
 
-const interval = setInterval(fetchMessage, 5000); // Temporizador para llamar a fetchMessage cada 10 segundos
+
+const interval = setInterval(fetchMessage, 3000); // Temporizador para llamar a fetchMessage cada 10 segundos
 
 onMounted(fetchMessage);
 
 onBeforeUnmount(() => {
-    console.log(1);
 clearInterval(interval); // Limpiar el temporizador cuando el componente se desmonte para evitar fugas de memoria
 });
 </script>
